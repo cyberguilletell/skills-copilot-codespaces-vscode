@@ -1,4 +1,4 @@
-// Create web Sever
+// Create web server
 // 1. Create a web server with express
 // 2. Create a route for GET /comments
 // 3. Return the comments array
