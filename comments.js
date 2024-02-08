@@ -1,66 +1,31 @@
 // Create web Sever
+// 1. Create a web server with express
+// 2. Create a route for GET /comments
+// 3. Return the comments array
+// 4. Create a route for POST /comments
+// 5. Add a new comment to the array
+// 6. Return the new comment
+
 const express = require('express');
-const router = express.Router();
-const commentModel = require('../models/comments.model');
+const app = express();
+app.use(express.json());
 
-// get all comments
-router.get('/', async (req, res) => {
-  try {
-    const comments = await commentModel.find();
+const comments = [
+    { username: 'Tammy', comment: 'lol that is so funny' },
+    { username: 'FishBoi', comment: 'haha rofl' },
+    { username: 'Luv2Blog', comment: 'noice' }
+];
+
+app.get('/comments', (req, res) => {
     res.json(comments);
-  } catch (err) {
-    res.json({ message: err });
-  }
 });
 
-// get comment by id
-router.get('/:commentId', async (req, res) => {
-  try {
-    const comment = await commentModel.findById(req.params.commentId);
-    res.json(comment);
-  } catch (err) {
-    res.json({ message: err });
-  }
+app.post('/comments', (req, res) => {
+    const newComment = req.body;
+    comments.push(newComment);
+    res.json(newComment);
 });
 
-// create new comment
-router.post('/', async (req, res) => {
-  const comment = new commentModel({
-    user: req.body.user,
-    content: req.body.content,
-    post: req.body.post,
-    date: req.body.date
-  });
-
-  try {
-    const savedComment = await comment.save();
-    res.json(savedComment);
-  } catch (err) {
-    res.json({ message: err });
-  }
+app.listen(3000, () => {
+    console.log('Server is listening on port 3000');
 });
-
-// delete comment by id
-router.delete('/:commentId', async (req, res) => {
-  try {
-    const removedComment = await commentModel.remove({ _id: req.params.commentId });
-    res.json(removedComment);
-  } catch (err) {
-    res.json({ message: err });
-  }
-});
-
-// update comment by id
-router.patch('/:commentId', async (req, res) => {
-  try {
-    const updatedComment = await commentModel.updateOne(
-      { _id: req.params.commentId },
-      { $set: { content: req.body.content } }
-    );
-    res.json(updatedComment);
-  } catch (err) {
-    res.json({ message: err });
-  }
-});
-
-module.exports = router;
