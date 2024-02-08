@@ -1,31 +1,66 @@
 // Create web Sever
 const express = require('express');
-const app = express();
-const port = 3000;
+const router = express.Router();
+const commentModel = require('../models/comments.model');
 
-// Create a comments array
-let comments = [];
-
-// Create a route for adding comments
-app.get('/addComment', (req, res) => {
-  let newComment = req.query.comment;
-  comments.push(newComment);
-  res.send('Comment added');
+// get all comments
+router.get('/', async (req, res) => {
+  try {
+    const comments = await commentModel.find();
+    res.json(comments);
+  } catch (err) {
+    res.json({ message: err });
+  }
 });
 
-// Create a route for getting comments
-app.get('/getComments', (req, res) => {
-  res.send(comments);
+// get comment by id
+router.get('/:commentId', async (req, res) => {
+  try {
+    const comment = await commentModel.findById(req.params.commentId);
+    res.json(comment);
+  } catch (err) {
+    res.json({ message: err });
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+// create new comment
+router.post('/', async (req, res) => {
+  const comment = new commentModel({
+    user: req.body.user,
+    content: req.body.content,
+    post: req.body.post,
+    date: req.body.date
+  });
+
+  try {
+    const savedComment = await comment.save();
+    res.json(savedComment);
+  } catch (err) {
+    res.json({ message: err });
+  }
 });
-```
 
-## 3.3.2. Fetch API
+// delete comment by id
+router.delete('/:commentId', async (req, res) => {
+  try {
+    const removedComment = await commentModel.remove({ _id: req.params.commentId });
+    res.json(removedComment);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
 
-The Fetch API provides an interface for fetching resources (including across the network). It will seem familiar to anyone who has used XMLHttpRequest, but the new API provides a more powerful and flexible feature set.
+// update comment by id
+router.patch('/:commentId', async (req, res) => {
+  try {
+    const updatedComment = await commentModel.updateOne(
+      { _id: req.params.commentId },
+      { $set: { content: req.body.content } }
+    );
+    res.json(updatedComment);
+  } catch (err) {
+    res.json({ message: err });
+  }
+});
 
-###
-```
+module.exports = router;
